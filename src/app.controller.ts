@@ -38,6 +38,21 @@ export class AppController {
     });
   }
 
+  @Put('user/:id/profile')
+  async updateUserProfile(
+    @Param('id') id: string,
+    @Body() userBio: { bio: string },
+  ): Promise<Profile> {
+    return this.prismaService.profile.update({
+      where: {
+        userId: Number(id),
+      },
+      data: {
+        bio: userBio.bio,
+      },
+    });
+  }
+
   @Get('post/:id')
   async getPostById(@Param('id') id: string): Promise<PostModel> {
     return this.prismaService.post.findUnique({ where: { id: Number(id) } });
