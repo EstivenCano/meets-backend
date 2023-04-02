@@ -21,30 +21,6 @@ import {
 export class AppController {
   constructor(private readonly prismaService: PrismaService) {}
 
-  @Put('user/:id/profile')
-  async updateUserProfile(
-    @Param('id') id: string,
-    @Body() userBio: { bio: string },
-  ): Promise<Profile> {
-    return this.prismaService.profile.update({
-      where: {
-        userId: Number(id),
-      },
-      data: {
-        bio: userBio.bio,
-      },
-    });
-  }
-
-  @Get('user/:id/profile')
-  async getUserProfile(@Param('id') id: string): Promise<Profile> {
-    return this.prismaService.profile.findUnique({
-      where: {
-        userId: Number(id),
-      },
-    });
-  }
-
   @Get('post/:id')
   async getPostById(@Param('id') id: string): Promise<PostModel> {
     return this.prismaService.post.findUnique({ where: { id: Number(id) } });
@@ -78,11 +54,6 @@ export class AppController {
         updatedAt: orderBy,
       },
     });
-  }
-
-  @Get('users')
-  async getAllUsers(): Promise<UserModel[]> {
-    return this.prismaService.user.findMany();
   }
 
   @Get('user/:id/drafts')
