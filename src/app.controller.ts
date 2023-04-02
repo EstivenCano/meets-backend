@@ -53,6 +53,15 @@ export class AppController {
     });
   }
 
+  @Get('user/:id/profile')
+  async getUserProfile(@Param('id') id: string): Promise<Profile> {
+    return this.prismaService.profile.findUnique({
+      where: {
+        userId: Number(id),
+      },
+    });
+  }
+
   @Get('post/:id')
   async getPostById(@Param('id') id: string): Promise<PostModel> {
     return this.prismaService.post.findUnique({ where: { id: Number(id) } });
@@ -140,6 +149,33 @@ export class AppController {
         email: userData.email,
         posts: {
           create: postData,
+        },
+      },
+    });
+  }
+
+  @Post('signup-with-profile')
+  async signupUserWithProfile(
+    @Body()
+    userData: {
+      name?: string;
+      email: string;
+      posts?: Prisma.PostCreateInput[];
+      profile: Prisma.ProfileCreateInput;
+    },
+  ): Promise<UserModel> {
+    const postData = userData.posts?.map((post) => {
+      return { title: post?.title, content: post?.content };
+    });
+    return this.prismaService.user.create({
+      data: {
+        name: userData?.name,
+        email: userData.email,
+        posts: {
+          create: postData,
+        },
+        profile: {
+          create: userData.profile,
         },
       },
     });
