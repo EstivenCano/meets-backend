@@ -21,23 +21,6 @@ import {
 export class AppController {
   constructor(private readonly prismaService: PrismaService) {}
 
-  @Post('user/:id/profile')
-  async createUserProfile(
-    @Param('id') id: string,
-    @Body() userBio: { bio: string },
-  ): Promise<Profile> {
-    return this.prismaService.profile.create({
-      data: {
-        bio: userBio.bio,
-        user: {
-          connect: {
-            id: Number(id),
-          },
-        },
-      },
-    });
-  }
-
   @Put('user/:id/profile')
   async updateUserProfile(
     @Param('id') id: string,
