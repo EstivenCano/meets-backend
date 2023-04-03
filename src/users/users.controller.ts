@@ -26,8 +26,13 @@ export class UsersController {
     return this.usersService.getUserProfile(id);
   }
 
-  @Get('users')
+  @Get()
   async getAllUsers() {
     return this.usersService.getAllUsers();
+  }
+
+  @Get(':id/drafts')
+  async getDraftsByUser(@Param('id') id: string) {
+    return this.usersService.getDraftsByUser(id);
   }
 }

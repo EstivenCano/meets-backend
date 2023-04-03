@@ -10,21 +10,11 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 
-import {
-  User as UserModel,
-  Post as PostModel,
-  Prisma,
-  Profile,
-} from '@prisma/client';
+import { User as UserModel, Post as PostModel, Prisma } from '@prisma/client';
 
 @Controller()
 export class AppController {
   constructor(private readonly prismaService: PrismaService) {}
-
-  @Get('post/:id')
-  async getPostById(@Param('id') id: string): Promise<PostModel> {
-    return this.prismaService.post.findUnique({ where: { id: Number(id) } });
-  }
 
   @Get('feed')
   async getFilteredPosts(
@@ -52,35 +42,6 @@ export class AppController {
       skip: Number(skip) || undefined,
       orderBy: {
         updatedAt: orderBy,
-      },
-    });
-  }
-
-  @Get('user/:id/drafts')
-  async getDraftsByUser(@Param('id') id: string): Promise<PostModel[]> {
-    return this.prismaService.user
-      .findUnique({
-        where: { id: Number(id) },
-      })
-      .posts({
-        where: {
-          published: false,
-        },
-      });
-  }
-
-  @Post('post')
-  async createDraft(
-    @Body() postData: { title: string; content?: string; authorEmail: string },
-  ): Promise<PostModel> {
-    const { title, content, authorEmail } = postData;
-    return this.prismaService.post.create({
-      data: {
-        title,
-        content,
-        author: {
-          connect: { email: authorEmail },
-        },
       },
     });
   }
@@ -130,38 +91,6 @@ export class AppController {
         },
         profile: {
           create: userData.profile,
-        },
-      },
-    });
-  }
-
-  @Put('publish/:id')
-  async togglePublishPost(@Param('id') id: string): Promise<PostModel> {
-    const postData = await this.prismaService.post.findUnique({
-      where: { id: Number(id) },
-      select: {
-        published: true,
-      },
-    });
-
-    return this.prismaService.post.update({
-      where: { id: Number(id) || undefined },
-      data: { published: !postData?.published },
-    });
-  }
-
-  @Delete('post/:id')
-  async deletePost(@Param('id') id: string): Promise<PostModel> {
-    return this.prismaService.post.delete({ where: { id: Number(id) } });
-  }
-
-  @Put('/post/:id/views')
-  async incrementPostViewCount(@Param('id') id: string): Promise<PostModel> {
-    return this.prismaService.post.update({
-      where: { id: Number(id) },
-      data: {
-        viewCount: {
-          increment: 1,
         },
       },
     });

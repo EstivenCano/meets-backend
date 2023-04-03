@@ -61,4 +61,21 @@ export class UsersService {
   async getAllUsers() {
     return this.prisma.user.findMany();
   }
+
+  /**
+   * Get all drafts by user
+   * @param id user id
+   * @returns Promise<Post[]>
+   */
+  async getDraftsByUser(id: string) {
+    return this.prisma.user
+      .findUnique({
+        where: { id: Number(id) },
+      })
+      .posts({
+        where: {
+          published: false,
+        },
+      });
+  }
 }
