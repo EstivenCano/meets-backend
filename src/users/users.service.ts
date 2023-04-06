@@ -1,5 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PrismaService } from '@/prisma.service';
+import { randomBytes, scrypt as _scrypt } from 'crypto';
+import { promisify } from 'util';
+
+const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class UsersService {
@@ -42,6 +46,23 @@ export class UsersService {
   }
 
   /**
+   * Create a new user
+   * @param id user id
+   * @param refreshToken hashed refresh token
+   * @returns Promise<User>
+   */
+  async updateUserRefreshToken(id: string, refreshToken?: string) {
+    return this.prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        hashedRefreshToken: refreshToken,
+      },
+    });
+  }
+
+  /**
    * Get a user profile
    * @param id user id
    * @returns Promise<Profile>
@@ -77,5 +98,48 @@ export class UsersService {
           published: false,
         },
       });
+  }
+
+  /**
+   * Get only one user by given email
+   * @param email user email
+   * @returns Promise<User>
+   */
+  async getUserByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+  }
+
+  /**
+   * Get only one user by given id
+   * @param id user id
+   * @returns Promise<User>
+   */
+  async getUserById(id: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+  }
+
+  /**
+   * Create a new user
+   * @param email user email
+   * @param password user password
+   * @param name user name
+   * @returns Promise<User>
+   */
+  async createUser(email: string, password: string, name?: string) {
+    return this.prisma.user.create({
+      data: {
+        email: email,
+        password: password,
+        name: name,
+      },
+    });
   }
 }

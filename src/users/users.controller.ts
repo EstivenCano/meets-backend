@@ -1,5 +1,6 @@
 import { Body, Controller, Param, Post, Put, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { Public } from '@/auth/decorators/public.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -31,8 +32,13 @@ export class UsersController {
     return this.usersService.getAllUsers();
   }
 
-  @Get(':id/drafts')
+  @Get('/:id/drafts')
   async getDraftsByUser(@Param('id') id: string) {
     return this.usersService.getDraftsByUser(id);
+  }
+
+  @Get('/:email')
+  async getUserByEmail(@Param('email') email: string) {
+    return this.usersService.getUserByEmail(email);
   }
 }

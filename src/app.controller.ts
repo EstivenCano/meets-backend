@@ -37,29 +37,6 @@ export class AppController {
     });
   }
 
-  @Post('signup')
-  async signupUser(
-    @Body()
-    userData: {
-      name?: string;
-      email: string;
-      posts?: Prisma.PostCreateInput[];
-    },
-  ): Promise<UserModel> {
-    const postData = userData.posts?.map((post) => {
-      return { title: post?.title, content: post?.content };
-    });
-    return this.prismaService.user.create({
-      data: {
-        name: userData?.name,
-        email: userData.email,
-        posts: {
-          create: postData,
-        },
-      },
-    });
-  }
-
   @Post('signup-with-profile')
   async signupUserWithProfile(
     @Body()
