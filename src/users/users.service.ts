@@ -1,9 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma.service';
-import { randomBytes, scrypt as _scrypt } from 'crypto';
-import { promisify } from 'util';
-
-const scrypt = promisify(_scrypt);
+import { Profile } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -12,13 +9,14 @@ export class UsersService {
   /**
    * Create a user profile
    * @param id user id
-   * @param bio string for user biography
+   * @param Profile object
    * @returns Promise<Profile>
    */
-  async createUserProfile(id: string, bio: string) {
+  async createUserProfile(id: string, profile: Profile) {
     return this.prisma.profile.create({
       data: {
-        bio: bio,
+        bio: profile.bio,
+        picture: profile.picture,
         user: {
           connect: {
             id: Number(id),
@@ -31,16 +29,17 @@ export class UsersService {
   /**
    * Update a user profile
    * @param id user id
-   * @param bio string for user biography
+   * @param profile Profile object
    * @returns Promise<Profile>
    */
-  async updateUserProfile(id: string, bio: string) {
+  async updateUserProfile(id: string, profile: Profile) {
     return this.prisma.profile.update({
       where: {
         userId: Number(id),
       },
       data: {
-        bio: bio,
+        bio: profile.bio,
+        picture: profile.picture,
       },
     });
   }

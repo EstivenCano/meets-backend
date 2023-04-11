@@ -1,25 +1,19 @@
 import { Body, Controller, Param, Post, Put, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Public } from '@/auth/decorators/public.decorator';
+import { Profile } from '@prisma/client';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('/:id/profile')
-  async createUserProfile(
-    @Param('id') id: string,
-    @Body() userBio: { bio: string },
-  ) {
-    return this.usersService.createUserProfile(id, userBio.bio);
+  async createUserProfile(@Param('id') id: string, @Body() profile: Profile) {
+    return this.usersService.createUserProfile(id, profile);
   }
 
   @Put('/:id/profile')
-  async updateUserProfile(
-    @Param('id') id: string,
-    @Body() userBio: { bio: string },
-  ) {
-    return this.usersService.updateUserProfile(id, userBio.bio);
+  async updateUserProfile(@Param('id') id: string, @Body() profile: Profile) {
+    return this.usersService.updateUserProfile(id, profile);
   }
 
   @Get('/:id/profile')
