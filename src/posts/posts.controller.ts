@@ -8,15 +8,15 @@ import {
   Delete,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
+import { CreatePostDto } from './dto/create-post.dto';
+import { CommentPostDto } from './dto/comment-post.dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  async createDraft(
-    @Body() postData: { title: string; content?: string; authorEmail: string },
-  ) {
+  async createDraft(@Body() postData: CreatePostDto) {
     const { title, content, authorEmail } = postData;
     return this.postsService.createDraft({ title, content, authorEmail });
   }
@@ -44,7 +44,7 @@ export class PostsController {
   @Post('/:id/comments')
   async addCommentToPost(
     @Param('id') id: string,
-    @Body() commentData: { content: string; authorEmail: string },
+    @Body() commentData: CommentPostDto,
   ) {
     const { content, authorEmail } = commentData;
     return this.postsService.addCommentToPost(id, { content, authorEmail });

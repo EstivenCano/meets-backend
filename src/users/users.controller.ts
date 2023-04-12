@@ -1,7 +1,7 @@
 import { Body, Controller, Param, Post, Put, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { GetUserDto } from './dto/get-user.dto';
+import { CreateProfileDto } from './dto/create-profile.dto';
 
 @Controller('users')
 export class UsersController {
@@ -10,7 +10,7 @@ export class UsersController {
   @Post('/:id/profile')
   async createUserProfile(
     @Param('id') id: string,
-    @Body() profile: UpdateProfileDto,
+    @Body() profile: CreateProfileDto,
   ) {
     return this.usersService.createUserProfile(id, profile);
   }
@@ -39,7 +39,7 @@ export class UsersController {
   }
 
   @Get('/:email')
-  async getUserByEmail(@Param('email') user: GetUserDto) {
-    return this.usersService.getUserByEmail(user.email);
+  async getUserByEmail(@Param('email') email: string) {
+    return this.usersService.getUserByEmail(email);
   }
 }

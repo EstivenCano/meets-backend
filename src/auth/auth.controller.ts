@@ -12,6 +12,8 @@ import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { GetCurrentUser, GetCurrentUserId } from './decorators';
 import { RtGuard } from './guards';
+import { SignupDto } from './dto/signup.dto';
+import { SigninDto } from './dto/signin.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -20,14 +22,14 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('signin')
-  signIn(@Body() signInDto: Record<string, any>) {
+  signIn(@Body() signInDto: SigninDto) {
     return this.authService.signIn(signInDto.email, signInDto.password);
   }
 
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
-  signUp(@Body() signUpDto: Record<string, any>) {
+  signUp(@Body() signUpDto: SignupDto) {
     return this.authService.singUp(
       signUpDto.email,
       signUpDto.password,
