@@ -1,6 +1,7 @@
 import { Body, Controller, Param, Post, Put, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { GetUserDto } from './dto/get-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -38,7 +39,7 @@ export class UsersController {
   }
 
   @Get('/:email')
-  async getUserByEmail(@Param('email') email: string) {
-    return this.usersService.getUserByEmail(email);
+  async getUserByEmail(@Param('email') user: GetUserDto) {
+    return this.usersService.getUserByEmail(user.email);
   }
 }
