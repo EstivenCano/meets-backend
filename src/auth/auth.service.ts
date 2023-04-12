@@ -101,4 +101,31 @@ export class AuthService {
       refresh_token: rt,
     };
   }
+
+  async googleAuth(req) {
+    if (!req.user) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const user = await this.usersService.getUserByEmail(req.user.email);
+
+    if (!user) {
+      const newUser = await this.usersService.createUserWithProfile(
+        req.user.email,
+        'google',
+        req.user.name,
+        {
+          picture: req.user.picture,
+          bio: '',
+        },
+      );
+      const tokens = await this.getTokens(newUser.id, newUser.email);
+      await this.updateRefreshTokenHash(newUser.id, tokens.refresh_token);
+      return tokens;
+    }
+
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
+    return tokens;
+  }
 }

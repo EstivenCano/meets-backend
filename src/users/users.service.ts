@@ -143,4 +143,33 @@ export class UsersService {
       },
     });
   }
+
+  /**
+   * Create a new user with profile
+   * @param email user email
+   * @param password user password
+   * @param name user name
+   * @param profile user profile
+   * @returns Promise<User>
+   */
+  async createUserWithProfile(
+    email: string,
+    password: string,
+    name: string,
+    profile: CreateProfileDto,
+  ) {
+    return this.prisma.user.create({
+      data: {
+        email: email,
+        password: password,
+        name: name,
+        profile: {
+          create: {
+            bio: profile.bio,
+            picture: profile.picture,
+          },
+        },
+      },
+    });
+  }
 }
