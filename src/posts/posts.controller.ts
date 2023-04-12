@@ -40,4 +40,13 @@ export class PostsController {
   async incrementPostViewCount(@Param('id') id: string) {
     return this.postsService.incrementPostViewCount(id);
   }
+
+  @Post('/:id/comments')
+  async addCommentToPost(
+    @Param('id') id: string,
+    @Body() commentData: { content: string; authorEmail: string },
+  ) {
+    const { content, authorEmail } = commentData;
+    return this.postsService.addCommentToPost(id, { content, authorEmail });
+  }
 }

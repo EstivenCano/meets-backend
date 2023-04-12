@@ -78,4 +78,29 @@ export class PostsService {
       },
     });
   }
+
+  /**
+   * Add comment to post
+   * @param commentData { content: string; authorEmail: string }
+   * @param id post id
+   * @returns Promise<Comment>
+   */
+  async addCommentToPost(
+    id: string,
+    commentData: { content: string; authorEmail: string },
+  ) {
+    const { content, authorEmail } = commentData;
+
+    return this.prisma.comment.create({
+      data: {
+        content,
+        author: {
+          connect: { email: authorEmail },
+        },
+        post: {
+          connect: { id: Number(id) },
+        },
+      },
+    });
+  }
 }
