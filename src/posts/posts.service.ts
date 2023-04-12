@@ -103,4 +103,17 @@ export class PostsService {
       },
     });
   }
+
+  /**
+   * Get comments for post
+   * @param id post id
+   * @returns Promise<Comment[]>
+   */
+  async getCommentsForPost(id: string) {
+    return this.prisma.comment.findMany({
+      where: {
+        postId: Number(id),
+      },
+    });
+  }
 }

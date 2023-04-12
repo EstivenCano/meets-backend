@@ -49,4 +49,9 @@ export class PostsController {
     const { content, authorEmail } = commentData;
     return this.postsService.addCommentToPost(id, { content, authorEmail });
   }
+
+  @Get('/:id/comments')
+  async getCommentsForPost(@Param('id') id: string) {
+    return this.postsService.getCommentsForPost(id);
+  }
 }
