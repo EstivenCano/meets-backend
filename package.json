@@ -1,10 +1,10 @@
 {
-  "name": "rest-nestjs",
+  "name": "meets",
   "version": "0.0.1",
   "private": true,
-  "description": "",
+  "description": "Social Media App with NestJS, Prisma, and React",
   "license": "UNLICENSED",
-  "author": "",
+  "author": "Estiven Cano",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
