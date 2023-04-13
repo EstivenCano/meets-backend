@@ -11,7 +11,7 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CommentPostDto } from './dto/comment-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { GetCurrentUserId } from '@/auth/decorators';
+import { GetCurrentUserId } from '../auth/decorators';
 
 @Controller('posts')
 export class PostsController {
