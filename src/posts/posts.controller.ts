@@ -11,6 +11,7 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CommentPostDto } from './dto/comment-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { GetCurrentUserId } from '@/auth/decorators';
 
 @Controller('posts')
 export class PostsController {
@@ -63,5 +64,21 @@ export class PostsController {
   ) {
     const { content } = commentData;
     return this.postsService.updateComment(commentId, content);
+  }
+
+  @Post('/:id/like')
+  async likePost(
+    @Param('id') postId: string,
+    @GetCurrentUserId() userId: string,
+  ) {
+    return this.postsService.likePost(postId, userId);
+  }
+
+  @Post('/:id/unlike')
+  async unlikePost(
+    @Param('id') postId: string,
+    @GetCurrentUserId() userId: string,
+  ) {
+    return this.postsService.unlikePost(postId, userId);
   }
 }

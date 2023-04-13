@@ -19,6 +19,7 @@ model User {
   comment            Comment[]
   followedBy         User[]    @relation("UserFollows")
   following          User[]    @relation("UserFollows")
+  likes              Post[]    @relation("PostLiked")
 }
 
 model Post {
@@ -31,6 +32,7 @@ model Post {
   viewCount Int       @default(0)
   authorId  Int?
   author    User?     @relation(fields: [authorId], references: [id])
+  likedBy   User[]    @relation("PostLiked")
   comments  Comment[]
 
   @@index([authorId])

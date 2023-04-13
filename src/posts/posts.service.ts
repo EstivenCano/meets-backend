@@ -133,4 +133,46 @@ export class PostsService {
       },
     });
   }
+
+  /**
+   * Like post
+   * @param postId post id
+   * @param userId user id
+   * @returns Promise<Post>
+   */
+  async likePost(postId: string, userId: string) {
+    return this.prisma.post.update({
+      where: {
+        id: Number(postId),
+      },
+      data: {
+        likedBy: {
+          connect: {
+            id: Number(userId),
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Unlike post
+   * @param postId post id
+   * @param userId user id
+   * @returns Promise<Post>
+   */
+  async unlikePost(postId: string, userId: string) {
+    return this.prisma.post.update({
+      where: {
+        id: Number(postId),
+      },
+      data: {
+        likedBy: {
+          disconnect: {
+            id: Number(userId),
+          },
+        },
+      },
+    });
+  }
 }
