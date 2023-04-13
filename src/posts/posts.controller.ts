@@ -10,6 +10,7 @@ import {
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CommentPostDto } from './dto/comment-post.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -53,5 +54,14 @@ export class PostsController {
   @Get('/:id/comments')
   async getCommentsForPost(@Param('id') id: string) {
     return this.postsService.getCommentsForPost(id);
+  }
+
+  @Put('/:id/comments/:commentId')
+  async updateComment(
+    @Param('commentId') commentId: string,
+    @Body() commentData: UpdateCommentDto,
+  ) {
+    const { content } = commentData;
+    return this.postsService.updateComment(commentId, content);
   }
 }

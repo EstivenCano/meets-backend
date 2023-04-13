@@ -42,8 +42,12 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const passwordMatches = await argon.verify(user.password, password);
-    if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    try {
+      const passwordMatches = await argon.verify(user.password, password);
+      if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    } catch (error) {
+      throw new ForbiddenException('Access Denied');
+    }
 
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);

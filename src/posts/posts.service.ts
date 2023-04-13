@@ -116,4 +116,21 @@ export class PostsService {
       },
     });
   }
+
+  /**
+   * Update comment
+   * @param commentId comment id
+   * @param content comment content
+   * @returns Promise<Comment>
+   */
+  async updateComment(commentId: string, content: string) {
+    return this.prisma.comment.update({
+      where: {
+        id: Number(commentId),
+      },
+      data: {
+        content,
+      },
+    });
+  }
 }
