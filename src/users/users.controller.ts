@@ -2,7 +2,7 @@ import { Body, Controller, Param, Post, Put, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
-import { GetCurrentUserId } from '@/auth/decorators';
+import { GetCurrentUserId } from '../auth/decorators';
 
 @Controller('users')
 export class UsersController {
