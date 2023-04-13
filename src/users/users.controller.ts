@@ -2,6 +2,7 @@ import { Body, Controller, Param, Post, Put, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
+import { GetCurrentUserId } from '@/auth/decorators';
 
 @Controller('users')
 export class UsersController {
@@ -41,5 +42,21 @@ export class UsersController {
   @Get('/:email')
   async getUserByEmail(@Param('email') email: string) {
     return this.usersService.getUserByEmail(email);
+  }
+
+  @Post('/:id/follow')
+  async followUser(
+    @GetCurrentUserId() id: string,
+    @Param('id') userId: string,
+  ) {
+    return this.usersService.followUser(id, userId);
+  }
+
+  @Post('/:id/unfollow')
+  async unfollowUser(
+    @GetCurrentUserId() id: string,
+    @Param('id') userId: string,
+  ) {
+    return this.usersService.unfollowUser(id, userId);
   }
 }

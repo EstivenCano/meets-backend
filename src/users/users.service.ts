@@ -172,4 +172,46 @@ export class UsersService {
       },
     });
   }
+
+  /**
+   * Update users followers
+   * @param id user id
+   * @param userId user id to follow
+   * @returns Promise<User>
+   */
+  async followUser(id: string, userId: string) {
+    return this.prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        following: {
+          connect: {
+            id: Number(userId),
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Update users followers
+   * @param id user id
+   * @param userId user id to unfollow
+   * @returns Promise<User>
+   */
+  async unfollowUser(id: string, userId: string) {
+    return this.prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        following: {
+          disconnect: {
+            id: Number(userId),
+          },
+        },
+      },
+    });
+  }
 }

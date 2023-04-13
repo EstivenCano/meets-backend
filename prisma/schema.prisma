@@ -16,7 +16,9 @@ model User {
   password           String?
   posts              Post[]
   profile            Profile?
-  Comment            Comment[]
+  comment            Comment[]
+  followedBy         User[]    @relation("UserFollows")
+  following          User[]    @relation("UserFollows")
 }
 
 model Post {
