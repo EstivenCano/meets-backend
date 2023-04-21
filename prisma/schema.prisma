@@ -13,6 +13,7 @@ model User {
   email              String    @unique
   name               String?
   hashedRefreshToken String?
+  resetToken         String?
   password           String?
   posts              Post[]
   profile            Profile?
@@ -44,8 +45,8 @@ model Comment {
   updatedAt DateTime @updatedAt
   content   String
   authorId  Int?
-  author    User?    @relation(fields: [authorId], references: [id])
   postId    Int?
+  author    User?    @relation(fields: [authorId], references: [id])
   post      Post?    @relation(fields: [postId], references: [id])
 
   @@index([authorId])
@@ -58,4 +59,22 @@ model Profile {
   bio     String?
   userId  Int     @unique
   user    User    @relation(fields: [userId], references: [id])
+}
+
+model PostLiked {
+  A Int
+  B Int
+
+  @@unique([A, B], map: "_PostLiked_AB_unique")
+  @@index([B], map: "_PostLiked_B_index")
+  @@map("_PostLiked")
+}
+
+model UserFollows {
+  A Int
+  B Int
+
+  @@unique([A, B], map: "_UserFollows_AB_unique")
+  @@index([B], map: "_UserFollows_B_index")
+  @@map("_UserFollows")
 }

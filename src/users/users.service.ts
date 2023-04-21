@@ -213,4 +213,37 @@ export class UsersService {
       },
     });
   }
+
+  /**
+   * Update users reset token
+   * @param id user id
+   * @param token reset token
+   * @returns
+   */
+  async updateResetToken(id: number, token: string) {
+    return this.prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        resetToken: token,
+      },
+    });
+  }
+
+  /**
+   * Update users password
+   * @param id user id
+   * @param password new password
+   */
+  async updatePassword(id: number, password: string) {
+    return this.prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        password: password,
+      },
+    });
+  }
 }

@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Req,
   Request,
@@ -13,8 +14,12 @@ import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { GetCurrentUser, GetCurrentUserId } from './decorators';
 import { RtGuard } from './guards';
-import { SignupDto } from './dto/signup.dto';
-import { SigninDto } from './dto/signin.dto';
+import {
+  SigninDto,
+  SignupDto,
+  RequestPasswordResetDto,
+  ResetPasswordDto,
+} from './dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
@@ -71,5 +76,21 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   googleAuthRedirect(@Req() req) {
     return this.authService.googleAuth(req);
+  }
+
+  @Public()
+  @Post('request-reset-password')
+  @HttpCode(HttpStatus.OK)
+  async requestResetPassword(@Body() body: RequestPasswordResetDto) {
+    const { email } = body;
+    return this.authService.requestPasswordReset(email);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() body: ResetPasswordDto) {
+    const { password, token, userId } = body;
+    return this.authService.resetPassword(userId, token, password);
   }
 }
