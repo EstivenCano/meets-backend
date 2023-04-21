@@ -6,9 +6,18 @@ import { PostsModule } from './posts/posts.module';
 import { AuthModule } from './auth/auth.module';
 import { AtGuard } from './auth/guards';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
-  imports: [AuthModule, UsersModule, PostsModule],
+  imports: [
+    AuthModule,
+    UsersModule,
+    PostsModule,
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
+  ],
   controllers: [AppController],
   providers: [
     PrismaService,
@@ -21,6 +30,10 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
       useValue: new ValidationPipe({
         whitelist: true,
       }),
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })
