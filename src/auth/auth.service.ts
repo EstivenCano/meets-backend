@@ -184,4 +184,23 @@ export class AuthService {
       message: 'Password reset successful',
     };
   }
+
+  async verifyResetToken(userId: string, token: string) {
+    const user = await this.usersService.getUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.resetToken)
+      throw new ForbiddenException('Invalid or expired password reset token');
+
+    const rtMatches = await argon.verify(user.resetToken, token);
+    if (!rtMatches)
+      throw new ForbiddenException('Invalid or expired password reset token');
+
+    return {
+      message: 'Password reset token verified',
+    };
+  }
 }

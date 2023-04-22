@@ -246,4 +246,20 @@ export class UsersService {
       },
     });
   }
+
+  /**
+   * Get users reset token
+   * @param id user id
+   * @returns Promise<User>
+   */
+  async getResetToken(id: number) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        resetToken: true,
+      },
+    });
+  }
 }

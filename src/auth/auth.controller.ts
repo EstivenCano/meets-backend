@@ -93,4 +93,14 @@ export class AuthController {
     const { password, token, userId } = body;
     return this.authService.resetPassword(userId, token, password);
   }
+
+  @Public()
+  @Get('verify-reset-token/:token/:userId')
+  @HttpCode(HttpStatus.OK)
+  async verifyResetToken(
+    @Param('token') token: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.authService.verifyResetToken(userId, token);
+  }
 }
