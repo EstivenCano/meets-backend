@@ -8,6 +8,12 @@ import { GetCurrentUserId } from '../auth/decorators';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get('/current-user')
+  async getCurrentUser(@GetCurrentUserId() id: string) {
+    const { profile, ...user } = await this.usersService.getUserInfo(id);
+    return { ...user, picture: profile?.picture };
+  }
+
   @Post('/:id/profile')
   async createUserProfile(
     @Param('id') id: string,

@@ -114,6 +114,29 @@ export class UsersService {
   }
 
   /**
+   * Get user information
+   * @param id user id
+   * @returns Promise<User>
+   */
+  async getUserInfo(id: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        profile: {
+          select: {
+            picture: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
    * Get only one user by given id
    * @param id user id
    * @returns Promise<User>
