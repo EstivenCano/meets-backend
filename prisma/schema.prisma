@@ -56,6 +56,7 @@ model Comment {
 model Profile {
   id      Int     @id @default(autoincrement())
   picture String?
+  cover   String?
   bio     String?
   userId  Int     @unique
   user    User    @relation(fields: [userId], references: [id])

@@ -1,4 +1,12 @@
-import { Body, Controller, Param, Post, Put, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Put,
+  Get,
+  NotFoundException,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -32,7 +40,14 @@ export class UsersController {
 
   @Get('/:id/profile')
   async getUserProfile(@Param('id') id: string) {
-    return this.usersService.getUserProfile(id);
+    const { user, ...profile } = await this.usersService.getUserProfile(id);
+
+    const { _count, name } = user;
+    return {
+      ...profile,
+      ..._count,
+      name,
+    };
   }
 
   @Get()
