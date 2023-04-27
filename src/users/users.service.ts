@@ -41,6 +41,12 @@ export class UsersService {
       data: {
         bio: profile.bio,
         picture: profile.picture,
+        cover: profile.cover,
+        user: {
+          update: {
+            name: profile.name,
+          },
+        },
       },
     });
   }

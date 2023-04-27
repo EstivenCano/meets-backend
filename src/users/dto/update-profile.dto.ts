@@ -8,4 +8,12 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsUrl()
   picture: string;
+
+  @IsOptional()
+  @IsUrl()
+  cover: string;
+
+  @IsOptional()
+  @IsString()
+  name: string;
 }
