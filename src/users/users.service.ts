@@ -324,4 +324,22 @@ export class UsersService {
       },
     });
   }
+
+  //Return a boolean if user is following another user
+  async isFollowingUser(id: string, userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        following: {
+          where: {
+            id: Number(userId),
+          },
+        },
+      },
+    });
+
+    return user.following.length > 0;
+  }
 }

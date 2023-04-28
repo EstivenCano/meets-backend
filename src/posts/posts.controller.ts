@@ -19,8 +19,7 @@ export class PostsController {
 
   @Post()
   async createDraft(@Body() postData: CreatePostDto) {
-    const { title, content, authorEmail } = postData;
-    return this.postsService.createDraft({ title, content, authorEmail });
+    return this.postsService.createDraft(postData);
   }
 
   @Get('/:id')

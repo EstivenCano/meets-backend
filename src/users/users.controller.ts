@@ -11,11 +11,13 @@ import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { GetCurrentUserId } from '../auth/decorators';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Throttle(20, 60)
   @Get('/current-user')
   async getCurrentUser(@GetCurrentUserId() id: string) {
     const { profile, ...user } = await this.usersService.getUserInfo(id);
@@ -79,5 +81,13 @@ export class UsersController {
     @Param('id') userId: string,
   ) {
     return this.usersService.unfollowUser(id, userId);
+  }
+
+  @Get('/:id/is-following')
+  async isFollowingUser(
+    @GetCurrentUserId() id: string,
+    @Param('id') userId: string,
+  ) {
+    return this.usersService.isFollowingUser(id, userId);
   }
 }

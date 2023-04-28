@@ -1,5 +1,6 @@
-import { Body, Injectable } from '@nestjs/common';
+import { Body, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { CreatePostDto } from './dto/create-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -10,15 +11,22 @@ export class PostsService {
    * @param postData  { title: string; content?: string; authorEmail: string }
    * @returns Promise<Post>
    */
-  async createDraft(
-    @Body() postData: { title: string; content?: string; authorEmail: string },
-  ) {
-    const { title, content, authorEmail } = postData;
+  async createDraft(postData: CreatePostDto) {
+    const { title, content, authorEmail, publish } = postData;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email: authorEmail },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Author with email ${authorEmail} not found`);
+    }
 
     return this.prisma.post.create({
       data: {
         title,
         content,
+        published: publish,
         author: {
           connect: { email: authorEmail },
         },
