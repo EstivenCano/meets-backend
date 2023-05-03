@@ -12,10 +12,19 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { CommentPostDto } from './dto/comment-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { GetCurrentUserId } from '../auth/decorators';
+import { GetFeedDto } from './dto/get-feed.dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
+
+  @Post('/feed')
+  async getFeedPosts(
+    @Body() filterData: GetFeedDto,
+    @GetCurrentUserId() userId: string,
+  ) {
+    return this.postsService.getFeedPosts({ ...filterData, userId });
+  }
 
   @Post()
   async createDraft(@Body() postData: CreatePostDto) {

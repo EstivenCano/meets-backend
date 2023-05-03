@@ -1,6 +1,7 @@
 import { Body, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { GetFeedDto } from './dto/get-feed.dto';
 
 @Injectable()
 export class PostsService {
@@ -180,6 +181,100 @@ export class PostsService {
             id: Number(userId),
           },
         },
+      },
+    });
+  }
+
+  /**
+   * Get all posts from followed users with pagination
+   * @returns Promise<Post[]>
+   */
+  async getFeedPosts(filterData: GetFeedDto & { userId: string }) {
+    const { searchString, page, perPage, userId } = filterData;
+
+    if (!userId) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+
+    const or = searchString
+      ? {
+          OR: [
+            { title: { contains: searchString } },
+            { content: { contains: searchString } },
+          ],
+        }
+      : {};
+
+    const following = await this.prisma.user
+      .findUnique({
+        where: {
+          id: Number(userId),
+        },
+      })
+      .following();
+
+    const followingIds = [...following.map((user) => user.id), Number(userId)];
+
+    return this.prisma.post.findMany({
+      where: {
+        published: true,
+        authorId: {
+          in: followingIds,
+        },
+        ...or,
+      },
+      include: {
+        author: {
+          select: {
+            name: true,
+            id: true,
+            profile: {
+              select: {
+                picture: true,
+              },
+            },
+          },
+        },
+        likedBy: {
+          select: {
+            name: true,
+            id: true,
+            profile: {
+              select: {
+                picture: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            likedBy: true,
+            comments: true,
+          },
+        },
+        comments: {
+          select: {
+            id: true,
+            createdAt: true,
+            author: {
+              select: {
+                name: true,
+                id: true,
+                profile: {
+                  select: {
+                    picture: true,
+                  },
+                },
+              },
+            },
+            content: true,
+          },
+        },
+      },
+      skip: (page - 1) * perPage,
+      take: perPage,
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   }
