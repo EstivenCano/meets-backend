@@ -65,6 +65,11 @@ export class PostsController {
     return this.postsService.getCommentsForPost(id);
   }
 
+  @Get('/:id/likes')
+  async getLikesForPost(@Param('id') id: string) {
+    return (await this.postsService.getLikesForPost(id)).likedBy;
+  }
+
   @Put('/:id/comments/:commentId')
   async updateComment(
     @Param('commentId') commentId: string,

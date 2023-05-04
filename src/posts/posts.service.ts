@@ -123,6 +123,22 @@ export class PostsService {
       where: {
         postId: Number(id),
       },
+      include: {
+        author: {
+          select: {
+            name: true,
+            id: true,
+            profile: {
+              select: {
+                picture: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 
@@ -139,6 +155,32 @@ export class PostsService {
       },
       data: {
         content,
+      },
+    });
+  }
+
+  /**
+   * Get likes for post
+   * @param postId
+   * @returns Promise<Post>
+   */
+  async getLikesForPost(postId: string) {
+    return this.prisma.post.findUnique({
+      where: {
+        id: Number(postId),
+      },
+      select: {
+        likedBy: {
+          select: {
+            id: true,
+            name: true,
+            profile: {
+              select: {
+                picture: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -236,38 +278,18 @@ export class PostsService {
           },
         },
         likedBy: {
-          select: {
-            name: true,
-            id: true,
-            profile: {
-              select: {
-                picture: true,
-              },
-            },
+          where: {
+            id: Number(userId),
           },
+          select: {
+            id: true,
+          },
+          take: 1,
         },
         _count: {
           select: {
             likedBy: true,
             comments: true,
-          },
-        },
-        comments: {
-          select: {
-            id: true,
-            createdAt: true,
-            author: {
-              select: {
-                name: true,
-                id: true,
-                profile: {
-                  select: {
-                    picture: true,
-                  },
-                },
-              },
-            },
-            content: true,
           },
         },
       },
