@@ -57,6 +57,11 @@ export class UsersController {
     return this.usersService.getAllUsers();
   }
 
+  @Get('/search/:query')
+  async searchUsers(@Param('query') query: string) {
+    return this.usersService.searchUsers(query);
+  }
+
   @Get('/:id/drafts')
   async getDraftsByUser(@Param('id') id: string) {
     return this.usersService.getDraftsByUser(id);

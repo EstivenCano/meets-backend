@@ -342,4 +342,28 @@ export class UsersService {
 
     return user.following.length > 0;
   }
+
+  /**
+   * Search users by name
+   * @param search search string
+   * @returns Promise<User[]>
+   */
+  async searchUsers(search: string) {
+    return this.prisma.user.findMany({
+      where: {
+        name: {
+          contains: search,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        profile: {
+          select: {
+            picture: true,
+          },
+        },
+      },
+    });
+  }
 }
