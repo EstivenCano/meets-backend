@@ -16,7 +16,7 @@ import { MailModule } from './mail/mail.module';
     PostsModule,
     ThrottlerModule.forRoot({
       ttl: 60,
-      limit: 10,
+      limit: 20,
     }),
     MailModule,
   ],

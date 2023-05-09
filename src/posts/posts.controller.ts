@@ -13,11 +13,13 @@ import { CommentPostDto } from './dto/comment-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { GetCurrentUserId } from '../auth/decorators';
 import { GetFeedDto } from './dto/get-feed.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @Throttle(30, 60)
   @Post('/feed')
   async getFeedPosts(
     @Body() filterData: GetFeedDto,

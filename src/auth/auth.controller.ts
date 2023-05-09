@@ -21,11 +21,13 @@ import {
   ResetPasswordDto,
 } from './dto';
 import { AuthGuard } from '@nestjs/passport';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Throttle(10, 60)
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('signin')
@@ -33,6 +35,7 @@ export class AuthController {
     return this.authService.signIn(signInDto.email, signInDto.password);
   }
 
+  @Throttle(5, 60)
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')

@@ -13,4 +13,8 @@ export class GetFeedDto {
   @IsOptional()
   @IsString()
   searchString: string;
+
+  @IsOptional()
+  @IsNumber()
+  byAuthor: number;
 }

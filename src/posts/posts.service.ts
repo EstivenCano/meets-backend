@@ -232,11 +232,40 @@ export class PostsService {
    * @returns Promise<Post[]>
    */
   async getFeedPosts(filterData: GetFeedDto & { userId: string }) {
-    const { searchString, page, perPage, userId } = filterData;
+    const { searchString, page, perPage, userId, byAuthor } = filterData;
 
     if (!userId) {
       throw new NotFoundException(`User with id ${userId} not found`);
     }
+
+    const include = {
+      author: {
+        select: {
+          name: true,
+          id: true,
+          profile: {
+            select: {
+              picture: true,
+            },
+          },
+        },
+      },
+      likedBy: {
+        where: {
+          id: Number(userId),
+        },
+        select: {
+          id: true,
+        },
+        take: 1,
+      },
+      _count: {
+        select: {
+          likedBy: true,
+          comments: true,
+        },
+      },
+    };
 
     const or = searchString
       ? {
@@ -246,6 +275,24 @@ export class PostsService {
           ],
         }
       : {};
+
+    if (byAuthor) {
+      return await this.prisma.post.findMany({
+        where: {
+          published: true,
+          authorId: {
+            equals: Number(byAuthor),
+          },
+          ...or,
+        },
+        include,
+        skip: (page - 1) * perPage,
+        take: perPage,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+    }
 
     const following = await this.prisma.user
       .findUnique({
@@ -265,34 +312,7 @@ export class PostsService {
         },
         ...or,
       },
-      include: {
-        author: {
-          select: {
-            name: true,
-            id: true,
-            profile: {
-              select: {
-                picture: true,
-              },
-            },
-          },
-        },
-        likedBy: {
-          where: {
-            id: Number(userId),
-          },
-          select: {
-            id: true,
-          },
-          take: 1,
-        },
-        _count: {
-          select: {
-            likedBy: true,
-            comments: true,
-          },
-        },
-      },
+      include,
       skip: (page - 1) * perPage,
       take: perPage,
       orderBy: {
