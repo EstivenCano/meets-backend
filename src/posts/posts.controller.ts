@@ -11,7 +11,7 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CommentPostDto } from './dto/comment-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { GetCurrentUserId } from '../auth/decorators';
+import { GetCurrentUser, GetCurrentUserId } from '../auth/decorators';
 import { GetFeedDto } from './dto/get-feed.dto';
 import { Throttle } from '@nestjs/throttler';
 
@@ -29,8 +29,11 @@ export class PostsController {
   }
 
   @Post()
-  async createDraft(@Body() postData: CreatePostDto) {
-    return this.postsService.createDraft(postData);
+  async createDraft(
+    @Body() postData: CreatePostDto,
+    @GetCurrentUser('email') authorEmail: string,
+  ) {
+    return this.postsService.createDraft({ ...postData, authorEmail });
   }
 
   @Get('/:id')
@@ -44,8 +47,11 @@ export class PostsController {
   }
 
   @Delete('/:id')
-  async deletePost(@Param('id') id: string) {
-    return this.postsService.deletePost(id);
+  async deletePost(
+    @Param('id') id: string,
+    @GetCurrentUserId() userId: string,
+  ) {
+    return this.postsService.deletePost(id, userId);
   }
 
   @Put('/:id/views')
@@ -57,8 +63,9 @@ export class PostsController {
   async addCommentToPost(
     @Param('id') id: string,
     @Body() commentData: CommentPostDto,
+    @GetCurrentUser('email') authorEmail: string,
   ) {
-    const { content, authorEmail } = commentData;
+    const { content } = commentData;
     return this.postsService.addCommentToPost(id, { content, authorEmail });
   }
 

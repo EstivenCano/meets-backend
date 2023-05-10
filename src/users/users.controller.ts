@@ -28,6 +28,7 @@ export class UsersController {
   }
 
   @Post('/:id/profile')
+  @UseGuards(IsOwner)
   async createUserProfile(
     @Param('id') id: string,
     @Body() profile: CreateProfileDto,
@@ -36,6 +37,7 @@ export class UsersController {
   }
 
   @Put('/:id/profile')
+  @UseGuards(IsOwner)
   async updateUserProfile(
     @Param('id') id: string,
     @Body() profile: UpdateProfileDto,

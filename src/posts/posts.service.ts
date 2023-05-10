@@ -1,4 +1,9 @@
-import { Body, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Body,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { GetFeedDto } from './dto/get-feed.dto';
@@ -12,8 +17,8 @@ export class PostsService {
    * @param postData  { title: string; content?: string; authorEmail: string }
    * @returns Promise<Post>
    */
-  async createDraft(postData: CreatePostDto) {
-    const { title, content, authorEmail, publish } = postData;
+  async createDraft(postData: CreatePostDto & { authorEmail: string }) {
+    const { title, content, publish, authorEmail } = postData;
 
     const user = await this.prisma.user.findUnique({
       where: { email: authorEmail },
@@ -68,8 +73,27 @@ export class PostsService {
    * @param id post id
    * @returns Promise<Post>
    */
-  async deletePost(id: string) {
-    return this.prisma.post.delete({ where: { id: Number(id) } });
+  async deletePost(id: string, userId: string) {
+    const postData = await this.prisma.post.findUnique({
+      where: { id: Number(id) },
+      select: {
+        authorId: true,
+      },
+    });
+
+    if (!postData) {
+      throw new NotFoundException(`Post with id ${id} not found`);
+    }
+
+    if (postData.authorId !== Number(userId)) {
+      throw new ForbiddenException(
+        `You are not authorized to delete this post`,
+      );
+    }
+
+    return this.prisma.post.delete({
+      where: { id: Number(id) },
+    });
   }
 
   /**

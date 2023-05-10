@@ -8,10 +8,6 @@ export class CreatePostDto {
   @IsOptional()
   content?: string;
 
-  @IsString()
-  @IsEmail()
-  authorEmail: string;
-
   @IsOptional()
   @IsBoolean()
   publish: boolean;
