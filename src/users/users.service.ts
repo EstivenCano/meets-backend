@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
+import * as argon from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -365,5 +370,64 @@ export class UsersService {
         },
       },
     });
+  }
+
+  /**
+   * Delete a user and all relations
+   * @param id user id
+   * @param password user password
+   * @returns
+   */
+  async deleteUser(id: string, password: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        password: true,
+      },
+    });
+
+    try {
+      const passwordMatches = await argon.verify(user.password, password);
+      if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    } catch (error) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const deleteLikes = this.prisma.postLiked.deleteMany({
+      where: {
+        OR: {
+          B: {
+            equals: Number(id),
+          },
+        },
+      },
+    });
+
+    const deleteFollows = this.prisma.userFollows.deleteMany({
+      where: {
+        OR: [
+          {
+            A: {
+              equals: Number(id),
+            },
+          },
+          {
+            B: {
+              equals: Number(id),
+            },
+          },
+        ],
+      },
+    });
+
+    const deleteUser = this.prisma.user.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    return this.prisma.$transaction([deleteLikes, deleteFollows, deleteUser]);
   }
 }

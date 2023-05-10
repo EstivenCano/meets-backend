@@ -1,9 +1,20 @@
-import { Body, Controller, Param, Post, Put, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Put,
+  Get,
+  UseGuards,
+  Delete,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { GetCurrentUserId } from '../auth/decorators';
 import { Throttle } from '@nestjs/throttler';
+import { IsOwner } from './guard/owner.guard';
+import { DeleteAccountDto } from './dto/delete-account.dto';
 
 @Controller('users')
 export class UsersController {
@@ -55,6 +66,7 @@ export class UsersController {
   }
 
   @Get('/:id/drafts')
+  @UseGuards(IsOwner)
   async getDraftsByUser(@Param('id') id: string) {
     return this.usersService.getDraftsByUser(id);
   }
@@ -86,5 +98,14 @@ export class UsersController {
     @Param('id') userId: string,
   ) {
     return this.usersService.isFollowingUser(id, userId);
+  }
+
+  @Delete('/:id')
+  @UseGuards(IsOwner)
+  async deleteUser(
+    @Param('id') id: string,
+    @Body() { password }: DeleteAccountDto,
+  ) {
+    return this.usersService.deleteUser(id, password);
   }
 }
