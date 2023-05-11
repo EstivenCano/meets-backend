@@ -6,8 +6,10 @@ import {
   HttpStatus,
   Param,
   Post,
+  Redirect,
   Req,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -77,8 +79,17 @@ export class AuthController {
   @Public()
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
-  googleAuthRedirect(@Req() req) {
-    return this.authService.googleAuth(req);
+  @Redirect(process.env.FRONTEND_URL)
+  async googleAuthRedirect(@Req() req, @Res() res) {
+    const tokens = await this.authService.googleAuth(req);
+
+    res.cookie('access_token', tokens.access_token);
+    res.cookie('refresh_token', tokens.refresh_token);
+
+    return {
+      message: 'User information from google',
+      tokens,
+    };
   }
 
   @Public()

@@ -233,6 +233,7 @@ export class UsersService {
           create: {
             bio: profile.bio,
             picture: profile.picture,
+            cover: '',
           },
         },
       },
