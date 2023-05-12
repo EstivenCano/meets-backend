@@ -431,4 +431,56 @@ export class UsersService {
 
     return this.prisma.$transaction([deleteLikes, deleteFollows, deleteUser]);
   }
+
+  /**
+   * Get users followers
+   * @param id user id
+   * @returns Promise<User[]>
+   */
+  async getFollowers(id: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        followedBy: {
+          select: {
+            id: true,
+            name: true,
+            profile: {
+              select: {
+                picture: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Get users following
+   * @param id user id
+   * @returns Promise<User[]>
+   */
+  async getFollowing(id: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        following: {
+          select: {
+            id: true,
+            name: true,
+            profile: {
+              select: {
+                picture: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }

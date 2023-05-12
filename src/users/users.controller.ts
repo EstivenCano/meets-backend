@@ -110,4 +110,14 @@ export class UsersController {
   ) {
     return this.usersService.deleteUser(id, password);
   }
+
+  @Get('/:id/followers')
+  async getFollowers(@Param('id') id: string) {
+    return this.usersService.getFollowers(id);
+  }
+
+  @Get('/:id/following')
+  async getFollowing(@Param('id') id: string) {
+    return this.usersService.getFollowing(id);
+  }
 }
