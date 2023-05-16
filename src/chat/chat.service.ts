@@ -1,10 +1,6 @@
 import { PrismaService } from '@/prisma.service';
 import { UsersService } from '@/users/users.service';
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { AddMessageDto } from './dto/add-message.dto';
 import { AddMessageListDto } from './dto/add-message-list.dto';
@@ -30,8 +26,14 @@ export class ChatService {
           },
         },
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
       include: {
         messages: {
+          orderBy: {
+            createdAt: 'desc',
+          },
           take: 15,
         },
         _count: {
@@ -88,12 +90,21 @@ export class ChatService {
   }
 
   /**
-   * Create a new message
-   * @param addMessage content, user id, and chat name
+   * Create a new message and updat the latest change on the chat
+   * @param addMessage content, user id, chat name and createdAt
    * @returns Promise<Message>
    */
   async addMessage(addMessage: AddMessageDto) {
-    const { chatName, content, authorId } = addMessage;
+    const { chatName, content, authorId, createdAt } = addMessage;
+
+    await this.prisma.chat.update({
+      where: {
+        name: chatName,
+      },
+      data: {
+        updatedAt: createdAt,
+      },
+    });
 
     return this.prisma.message.create({
       data: {
