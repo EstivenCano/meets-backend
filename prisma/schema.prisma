@@ -17,10 +17,12 @@ model User {
   password           String?
   posts              Post[]
   profile            Profile?
+  messages           Message[]
   comment            Comment[]
   followedBy         User[]    @relation("UserFollows")
   following          User[]    @relation("UserFollows")
   likes              Post[]    @relation("PostLiked")
+  chats              Chat[]    @relation("ChatParticipants")
 }
 
 model Post {
@@ -78,4 +80,38 @@ model UserFollows {
   @@unique([A, B], map: "_UserFollows_AB_unique")
   @@index([B], map: "_UserFollows_B_index")
   @@map("_UserFollows")
+}
+
+//Create a prisma model for chat an messages
+
+model Chat {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  name         String    @unique
+  participants User[]    @relation("ChatParticipants")
+  messages     Message[]
+}
+
+model ChatParticipants {
+  A Int
+  B Int
+
+  @@unique([A, B], map: "_ChatParticipants_AB_unique")
+  @@index([B], map: "_ChatParticipants_B_index")
+  @@map("_ChatParticipants")
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String
+  authorId  Int?
+  chatId    Int?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chat      Chat?    @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([authorId])
+  @@index([chatId])
 }

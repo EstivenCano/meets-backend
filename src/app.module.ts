@@ -8,17 +8,19 @@ import { AtGuard } from './auth/guards';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { MailModule } from './mail/mail.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
     PostsModule,
+    MailModule,
+    ChatModule,
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 20,
     }),
-    MailModule,
   ],
   controllers: [AppController],
   providers: [
