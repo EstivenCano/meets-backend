@@ -4,6 +4,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { AddMessageDto } from './dto/add-message.dto';
 import { AddMessageListDto } from './dto/add-message-list.dto';
+import { LoadMessagesDto } from './dto/load-messages.dto';
 
 @Injectable()
 export class ChatService {
@@ -179,5 +180,27 @@ export class ChatService {
     );
 
     return following.flatMap((f) => (!participantIds.includes(f.id) ? f : []));
+  }
+
+  /**
+   * Load messages for an specific chat with pagination
+   * @param filterData data options to filter
+   * @returns Promise<Message[]>
+   */
+  async loadMessages(filterData: LoadMessagesDto) {
+    const { chatName, page, perPage } = filterData;
+
+    return this.prisma.message.findMany({
+      where: {
+        chat: {
+          name: chatName,
+        },
+      },
+      skip: (page - 1) * perPage,
+      take: perPage,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 }

@@ -14,6 +14,7 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import { AddMessageDto } from './dto/add-message.dto';
 import { IsOn } from './guards/isOn.guard';
 import { AddMessageListDto } from './dto/add-message-list.dto';
+import { LoadMessagesDto } from './dto/load-messages.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -49,5 +50,10 @@ export class ChatController {
   @Get('/following-to-chat')
   async followingToChat(@GetCurrentUserId() userId: string) {
     return this.chatService.followingToChat(userId);
+  }
+
+  @Post('/load')
+  async loadMessages(@Body() body: LoadMessagesDto) {
+    return this.chatService.loadMessages(body);
   }
 }

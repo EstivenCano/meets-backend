@@ -32,6 +32,7 @@ export class ChatGateway
 
   @SubscribeMessage('event_join')
   handleJoinRoom(client: Socket, room: string) {
+    console.log('Se conectó');
     client.join(`${room}`);
   }
 
@@ -43,6 +44,7 @@ export class ChatGateway
 
   @SubscribeMessage('event_leave')
   handleRoomLeave(client: Socket, room: string) {
+    console.log('Se desconectó');
     client.leave(`${room}`);
   }
 
