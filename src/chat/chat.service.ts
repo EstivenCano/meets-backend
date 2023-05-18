@@ -203,4 +203,47 @@ export class ChatService {
       },
     });
   }
+
+  /**
+   * Update all new messages base on chat name
+   * @param chatName
+   * @returns Promise<Prisma.BatchPayload>
+   */
+  async updateNewMessages(chatName: string, userId: string) {
+    return this.prisma.message.updateMany({
+      where: {
+        chat: {
+          name: chatName,
+          participants: {
+            some: {
+              id: Number(userId),
+            },
+          },
+        },
+        new: true,
+      },
+      data: {
+        new: false,
+      },
+    });
+  }
+
+  /**
+   * Return new messages count base on chat name
+   * @param chatName
+   * @returns Promise<number>
+   */
+  async countNewMessages(chatName: string, userId: string) {
+    return this.prisma.message.count({
+      where: {
+        new: true,
+        chat: {
+          name: chatName,
+        },
+        authorId: {
+          not: Number(userId),
+        },
+      },
+    });
+  }
 }

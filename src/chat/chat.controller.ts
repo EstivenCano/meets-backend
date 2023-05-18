@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
@@ -15,6 +16,7 @@ import { AddMessageDto } from './dto/add-message.dto';
 import { IsOn } from './guards/isOn.guard';
 import { AddMessageListDto } from './dto/add-message-list.dto';
 import { LoadMessagesDto } from './dto/load-messages.dto';
+import { MessageCountDto } from './dto/messages-count.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -55,5 +57,21 @@ export class ChatController {
   @Post('/load')
   async loadMessages(@Body() body: LoadMessagesDto) {
     return this.chatService.loadMessages(body);
+  }
+
+  @Get('/new-messages-count')
+  async getMessagesCount(
+    @Body() { chatName }: MessageCountDto,
+    @GetCurrentUserId() id: string,
+  ) {
+    return this.chatService.countNewMessages(chatName, id);
+  }
+
+  @Put('/update-new-messages')
+  async updateNewMessages(
+    @Body() { chatName }: MessageCountDto,
+    @GetCurrentUserId() id: string,
+  ) {
+    return this.chatService.updateNewMessages(chatName, id);
   }
 }
