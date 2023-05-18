@@ -6,8 +6,9 @@
   "license": "UNLICENSED",
   "author": "Estiven Cano",
   "scripts": {
+    "postinstall": "prisma generate",
     "prebuild": "rimraf dist",
-    "build": "prisma generate && nest build",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start --watch",
