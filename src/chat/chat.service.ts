@@ -1,5 +1,5 @@
 import { PrismaService } from '../prisma.service';
-import { UsersService } from '@/users/users.service';
+import { UsersService } from '../users/users.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { AddMessageDto } from './dto/add-message.dto';

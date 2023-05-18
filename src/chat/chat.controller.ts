@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { GetCurrentUserId } from '@/auth/decorators';
+import { GetCurrentUserId } from '../auth/decorators';
 import { IsOwner } from './guards/owner.guard';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { AddMessageDto } from './dto/add-message.dto';
