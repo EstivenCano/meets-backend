@@ -17,6 +17,7 @@ import { IsOn } from './guards/isOn.guard';
 import { AddMessageListDto } from './dto/add-message-list.dto';
 import { LoadMessagesDto } from './dto/load-messages.dto';
 import { MessageCountDto } from './dto/messages-count.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('chat')
 export class ChatController {
@@ -59,14 +60,16 @@ export class ChatController {
     return this.chatService.loadMessages(body);
   }
 
-  @Get('/new-messages-count')
+  @SkipThrottle()
+  @Get('/new-messages-count/:chatName')
   async getMessagesCount(
-    @Body() { chatName }: MessageCountDto,
+    @Param('chatName') chatName: string,
     @GetCurrentUserId() id: string,
   ) {
     return this.chatService.countNewMessages(chatName, id);
   }
 
+  @SkipThrottle()
   @Put('/update-new-messages')
   async updateNewMessages(
     @Body() { chatName }: MessageCountDto,

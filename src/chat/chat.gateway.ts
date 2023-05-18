@@ -15,6 +15,7 @@ import { AddMessageDto } from './dto/add-message.dto';
   cors: {
     origin: '*',
   },
+  transports: ['websocket'],
 })
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -24,11 +25,6 @@ export class ChatGateway
   constructor(private readonly chatService: ChatService) {}
 
   private logger: Logger = new Logger('AppGateway');
-
-  @SubscribeMessage('msgToServer')
-  handleMessage(client: Socket, payload: string): void {
-    this.server.emit('msgToClient', payload);
-  }
 
   @SubscribeMessage('event_join')
   handleJoinRoom(client: Socket, room: string) {
@@ -43,6 +39,7 @@ export class ChatGateway
 
   @SubscribeMessage('event_leave')
   handleRoomLeave(client: Socket, room: string) {
+    console.log('Leaves');
     client.leave(`${room}`);
   }
 

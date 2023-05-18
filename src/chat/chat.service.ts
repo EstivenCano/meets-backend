@@ -221,6 +221,9 @@ export class ChatService {
           },
         },
         new: true,
+        authorId: {
+          not: Number(userId),
+        },
       },
       data: {
         new: false,

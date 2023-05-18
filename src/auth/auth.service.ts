@@ -67,6 +67,7 @@ export class AuthService {
     if (!user.hashedRefreshToken) throw new ForbiddenException('Access Denied');
 
     const rtMatches = await argon.verify(user.hashedRefreshToken, refreshToken);
+
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
     const tokens = await this.getTokens(user.id, user.email);
@@ -82,6 +83,7 @@ export class AuthService {
 
   async updateRefreshTokenHash(userId: number, refreshToken: string) {
     const hash = await argon.hash(refreshToken);
+
     await this.usersService.updateUserRefreshToken(String(userId), hash);
   }
 
