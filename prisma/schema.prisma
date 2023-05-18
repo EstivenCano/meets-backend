@@ -106,6 +106,7 @@ model Message {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  new       Boolean  @default(true)
   content   String
   authorId  Int?
   chatId    Int?
