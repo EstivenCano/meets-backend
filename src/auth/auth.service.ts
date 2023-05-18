@@ -10,7 +10,7 @@ import { scrypt as _scrypt } from 'crypto';
 import { JwtPayload } from './types';
 import * as argon from 'argon2';
 import * as crypto from 'crypto';
-import { MailService } from '@/mail/mail.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
