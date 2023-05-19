@@ -3,16 +3,13 @@ generator client {
 }
 
 datasource db {
-  provider = "cockroachdb"
-  url      = env("DATABASE_URL")
-}
-
-model Widget {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id                 Int       @id @default(sequence())
+  id                 Int       @id @default(autoincrement())
   email              String    @unique
   name               String?
   hashedRefreshToken String?
@@ -29,7 +26,7 @@ model User {
 }
 
 model Post {
-  id        Int       @id @default(sequence())
+  id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   title     String
@@ -45,7 +42,7 @@ model Post {
 }
 
 model Comment {
-  id        Int      @id @default(sequence())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   content   String
@@ -59,7 +56,7 @@ model Comment {
 }
 
 model Profile {
-  id      Int     @id @default(sequence())
+  id      Int     @id @default(autoincrement())
   picture String?
   cover   String?
   bio     String?
@@ -88,7 +85,7 @@ model UserFollows {
 //Create a prisma model for chat an messages
 
 model Chat {
-  id           Int       @id @default(sequence())
+  id           Int       @id @default(autoincrement())
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   name         String    @unique
@@ -106,7 +103,7 @@ model ChatParticipants {
 }
 
 model Message {
-  id        Int      @id @default(sequence())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   new       Boolean  @default(true)
