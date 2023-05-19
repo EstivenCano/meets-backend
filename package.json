@@ -6,7 +6,6 @@
   "license": "UNLICENSED",
   "author": "Estiven Cano",
   "scripts": {
-    "postinstall": "prisma generate",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -20,7 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "vercel-build": "prisma generate && prisma migrate deploy && nest build",
+    "vercel-build": "prisma generate && nest build",
     "prisma:generate": "prisma generate"
   },
   "jest": {
