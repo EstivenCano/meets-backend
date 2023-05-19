@@ -1,6 +1,7 @@
 import { IsEmail, IsString } from 'class-validator';
 
-export class CommentPostDto {
+export class RequestPasswordResetDto {
   @IsString()
-  content: string;
+  @IsEmail()
+  email: string;
 }

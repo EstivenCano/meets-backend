@@ -11,16 +11,29 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CommentPostDto } from './dto/comment-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { GetCurrentUserId } from '../auth/decorators';
+import { GetCurrentUser, GetCurrentUserId } from '../auth/decorators';
+import { GetFeedDto } from './dto/get-feed.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @Throttle(30, 60)
+  @Post('/feed')
+  async getFeedPosts(
+    @Body() filterData: GetFeedDto,
+    @GetCurrentUserId() userId: string,
+  ) {
+    return this.postsService.getFeedPosts({ ...filterData, userId });
+  }
+
   @Post()
-  async createDraft(@Body() postData: CreatePostDto) {
-    const { title, content, authorEmail } = postData;
-    return this.postsService.createDraft({ title, content, authorEmail });
+  async createDraft(
+    @Body() postData: CreatePostDto,
+    @GetCurrentUser('email') authorEmail: string,
+  ) {
+    return this.postsService.createDraft({ ...postData, authorEmail });
   }
 
   @Get('/:id')
@@ -34,8 +47,11 @@ export class PostsController {
   }
 
   @Delete('/:id')
-  async deletePost(@Param('id') id: string) {
-    return this.postsService.deletePost(id);
+  async deletePost(
+    @Param('id') id: string,
+    @GetCurrentUserId() userId: string,
+  ) {
+    return this.postsService.deletePost(id, userId);
   }
 
   @Put('/:id/views')
@@ -47,14 +63,20 @@ export class PostsController {
   async addCommentToPost(
     @Param('id') id: string,
     @Body() commentData: CommentPostDto,
+    @GetCurrentUser('email') authorEmail: string,
   ) {
-    const { content, authorEmail } = commentData;
+    const { content } = commentData;
     return this.postsService.addCommentToPost(id, { content, authorEmail });
   }
 
   @Get('/:id/comments')
   async getCommentsForPost(@Param('id') id: string) {
     return this.postsService.getCommentsForPost(id);
+  }
+
+  @Get('/:id/likes')
+  async getLikesForPost(@Param('id') id: string) {
+    return (await this.postsService.getLikesForPost(id)).likedBy;
   }
 
   @Put('/:id/comments/:commentId')

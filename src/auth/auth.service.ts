@@ -9,16 +9,18 @@ import { UsersService } from '../users/users.service';
 import { scrypt as _scrypt } from 'crypto';
 import { JwtPayload } from './types';
 import * as argon from 'argon2';
+import * as crypto from 'crypto';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
+    private mailService: MailService,
     private jwtService: JwtService,
   ) {}
 
   async singUp(email: string, password: string, name?: string) {
-    //See if email is in use
     const userExist = await this.usersService.getUserByEmail(email);
 
     if (userExist) {
@@ -65,6 +67,7 @@ export class AuthService {
     if (!user.hashedRefreshToken) throw new ForbiddenException('Access Denied');
 
     const rtMatches = await argon.verify(user.hashedRefreshToken, refreshToken);
+
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
     const tokens = await this.getTokens(user.id, user.email);
@@ -80,6 +83,7 @@ export class AuthService {
 
   async updateRefreshTokenHash(userId: number, refreshToken: string) {
     const hash = await argon.hash(refreshToken);
+
     await this.usersService.updateUserRefreshToken(String(userId), hash);
   }
 
@@ -131,5 +135,74 @@ export class AuthService {
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
     return tokens;
+  }
+
+  async requestPasswordReset(email: string) {
+    const user = await this.usersService.getUserByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    let resetToken = crypto.randomBytes(32).toString('hex');
+
+    const hash = await argon.hash(resetToken);
+
+    await this.usersService.updateResetToken(user.id, hash);
+
+    const link = `${process.env.FRONTEND_URL}/auth/reset-password?token=${resetToken}&id=${user.id}`;
+
+    await this.mailService.sendResetPassword(user, link);
+
+    return {
+      message: 'Password reset link sent',
+      userId: user.id,
+      token: resetToken,
+    };
+  }
+
+  async resetPassword(userId: string, token: string, password: string) {
+    const user = await this.usersService.getUserById(String(userId));
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.resetToken)
+      throw new ForbiddenException('Invalid or expired password reset token');
+
+    const rtMatches = await argon.verify(user.resetToken, token);
+    if (!rtMatches)
+      throw new ForbiddenException('Invalid or expired password reset token');
+
+    const hash = await argon.hash(password);
+
+    await this.usersService.updatePassword(user.id, hash);
+
+    //Remove reset token
+    await this.usersService.updateResetToken(user.id, null);
+
+    return {
+      message: 'Password reset successful',
+    };
+  }
+
+  async verifyResetToken(userId: string, token: string) {
+    const user = await this.usersService.getUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.resetToken)
+      throw new ForbiddenException('Invalid or expired password reset token');
+
+    const rtMatches = await argon.verify(user.resetToken, token);
+    if (!rtMatches)
+      throw new ForbiddenException('Invalid or expired password reset token');
+
+    return {
+      message: 'Password reset token verified',
+    };
   }
 }

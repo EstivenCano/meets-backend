@@ -1,14 +1,34 @@
-import { Body, Controller, Param, Post, Put, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Put,
+  Get,
+  UseGuards,
+  Delete,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { GetCurrentUserId } from '../auth/decorators';
+import { Throttle } from '@nestjs/throttler';
+import { IsOwner } from './guard/owner.guard';
+import { DeleteAccountDto } from './dto/delete-account.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Throttle(20, 60)
+  @Get('/current-user')
+  async getCurrentUser(@GetCurrentUserId() id: string) {
+    const { profile, ...user } = await this.usersService.getUserInfo(id);
+    return { ...user, picture: profile?.picture };
+  }
+
   @Post('/:id/profile')
+  @UseGuards(IsOwner)
   async createUserProfile(
     @Param('id') id: string,
     @Body() profile: CreateProfileDto,
@@ -17,6 +37,7 @@ export class UsersController {
   }
 
   @Put('/:id/profile')
+  @UseGuards(IsOwner)
   async updateUserProfile(
     @Param('id') id: string,
     @Body() profile: UpdateProfileDto,
@@ -26,7 +47,14 @@ export class UsersController {
 
   @Get('/:id/profile')
   async getUserProfile(@Param('id') id: string) {
-    return this.usersService.getUserProfile(id);
+    const { user, ...profile } = await this.usersService.getUserProfile(id);
+
+    const { _count, name } = user;
+    return {
+      ...profile,
+      ..._count,
+      name,
+    };
   }
 
   @Get()
@@ -34,7 +62,13 @@ export class UsersController {
     return this.usersService.getAllUsers();
   }
 
+  @Get('/search/:query')
+  async searchUsers(@Param('query') query: string) {
+    return this.usersService.searchUsers(query);
+  }
+
   @Get('/:id/drafts')
+  @UseGuards(IsOwner)
   async getDraftsByUser(@Param('id') id: string) {
     return this.usersService.getDraftsByUser(id);
   }
@@ -58,5 +92,32 @@ export class UsersController {
     @Param('id') userId: string,
   ) {
     return this.usersService.unfollowUser(id, userId);
+  }
+
+  @Get('/:id/is-following')
+  async isFollowingUser(
+    @GetCurrentUserId() id: string,
+    @Param('id') userId: string,
+  ) {
+    return this.usersService.isFollowingUser(id, userId);
+  }
+
+  @Delete('/:id')
+  @UseGuards(IsOwner)
+  async deleteUser(
+    @Param('id') id: string,
+    @Body() { password }: DeleteAccountDto,
+  ) {
+    return this.usersService.deleteUser(id, password);
+  }
+
+  @Get('/:id/followers')
+  async getFollowers(@Param('id') id: string) {
+    return this.usersService.getFollowers(id);
+  }
+
+  @Get('/:id/following')
+  async getFollowing(@Param('id') id: string) {
+    return this.usersService.getFollowing(id);
   }
 }

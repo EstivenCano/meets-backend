@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
+import * as argon from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -41,6 +46,12 @@ export class UsersService {
       data: {
         bio: profile.bio,
         picture: profile.picture,
+        cover: profile.cover,
+        user: {
+          update: {
+            name: profile.name,
+          },
+        },
       },
     });
   }
@@ -68,11 +79,37 @@ export class UsersService {
    * @returns Promise<Profile>
    */
   async getUserProfile(id: string) {
-    return this.prisma.profile.findUnique({
-      where: {
-        userId: Number(id),
-      },
-    });
+    try {
+      const profileData = this.prisma.profile.findUnique({
+        where: {
+          userId: Number(id),
+        },
+        select: {
+          bio: true,
+          picture: true,
+          cover: true,
+          user: {
+            select: {
+              name: true,
+              _count: {
+                select: {
+                  posts: true,
+                  followedBy: true,
+                  following: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!(await profileData.user()).id)
+        throw new NotFoundException('User not found');
+
+      return profileData;
+    } catch (error) {
+      throw new NotFoundException('Profile not found');
+    }
   }
 
   /**
@@ -114,6 +151,29 @@ export class UsersService {
   }
 
   /**
+   * Get user information
+   * @param id user id
+   * @returns Promise<User>
+   */
+  async getUserInfo(id: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        profile: {
+          select: {
+            picture: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
    * Get only one user by given id
    * @param id user id
    * @returns Promise<User>
@@ -139,6 +199,13 @@ export class UsersService {
         email: email,
         password: password,
         name: name,
+        profile: {
+          create: {
+            bio: '',
+            picture: '',
+            cover: '',
+          },
+        },
       },
     });
   }
@@ -166,6 +233,7 @@ export class UsersService {
           create: {
             bio: profile.bio,
             picture: profile.picture,
+            cover: '',
           },
         },
       },
@@ -208,6 +276,208 @@ export class UsersService {
         following: {
           disconnect: {
             id: Number(userId),
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Update users reset token
+   * @param id user id
+   * @param token reset token
+   * @returns
+   */
+  async updateResetToken(id: number, token: string) {
+    return this.prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        resetToken: token,
+      },
+    });
+  }
+
+  /**
+   * Update users password
+   * @param id user id
+   * @param password new password
+   */
+  async updatePassword(id: number, password: string) {
+    return this.prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        password: password,
+      },
+    });
+  }
+
+  /**
+   * Get users reset token
+   * @param id user id
+   * @returns Promise<User>
+   */
+  async getResetToken(id: number) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        resetToken: true,
+      },
+    });
+  }
+
+  //Return a boolean if user is following another user
+  async isFollowingUser(id: string, userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        following: {
+          where: {
+            id: Number(userId),
+          },
+        },
+      },
+    });
+
+    return user.following.length > 0;
+  }
+
+  /**
+   * Search users by name
+   * @param search search string
+   * @returns Promise<User[]>
+   */
+  async searchUsers(search: string) {
+    return this.prisma.user.findMany({
+      where: {
+        name: {
+          contains: search,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        profile: {
+          select: {
+            picture: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Delete a user and all relations
+   * @param id user id
+   * @param password user password
+   * @returns
+   */
+  async deleteUser(id: string, password: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        password: true,
+      },
+    });
+
+    try {
+      const passwordMatches = await argon.verify(user.password, password);
+      if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    } catch (error) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const deleteLikes = this.prisma.postLiked.deleteMany({
+      where: {
+        OR: {
+          B: {
+            equals: Number(id),
+          },
+        },
+      },
+    });
+
+    const deleteFollows = this.prisma.userFollows.deleteMany({
+      where: {
+        OR: [
+          {
+            A: {
+              equals: Number(id),
+            },
+          },
+          {
+            B: {
+              equals: Number(id),
+            },
+          },
+        ],
+      },
+    });
+
+    const deleteUser = this.prisma.user.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    return this.prisma.$transaction([deleteLikes, deleteFollows, deleteUser]);
+  }
+
+  /**
+   * Get users followers
+   * @param id user id
+   * @returns Promise<User[]>
+   */
+  async getFollowers(id: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        followedBy: {
+          select: {
+            id: true,
+            name: true,
+            profile: {
+              select: {
+                picture: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Get users following
+   * @param id user id
+   * @returns Promise<User[]>
+   */
+  async getFollowing(id: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        following: {
+          select: {
+            id: true,
+            name: true,
+            profile: {
+              select: {
+                picture: true,
+              },
+            },
           },
         },
       },
