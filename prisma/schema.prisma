@@ -3,9 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
@@ -15,14 +15,14 @@ model User {
   hashedRefreshToken String?
   resetToken         String?
   password           String?
-  comment            Comment[]
-  messages           Message[]
   posts              Post[]
   profile            Profile?
-  chats              Chat[]    @relation("ChatParticipants")
+  messages           Message[]
+  comment            Comment[]
+  followedBy         User[]    @relation("UserFollows")
+  following          User[]    @relation("UserFollows")
   likes              Post[]    @relation("PostLiked")
-  User_A             User[]    @relation("UserFollows")
-  User_B             User[]    @relation("UserFollows")
+  chats              Chat[]    @relation("ChatParticipants")
 }
 
 model Post {
@@ -34,9 +34,9 @@ model Post {
   published Boolean   @default(false)
   viewCount Int       @default(0)
   authorId  Int?
-  comments  Comment[]
-  author    User?     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author    User?     @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   likedBy   User[]    @relation("PostLiked")
+  comments  Comment[]
 
   @@index([authorId])
 }
@@ -48,8 +48,8 @@ model Comment {
   content   String
   authorId  Int?
   postId    Int?
-  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([authorId])
   @@index([postId])
@@ -61,16 +61,45 @@ model Profile {
   cover   String?
   bio     String?
   userId  Int?    @unique
-  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
+
+model PostLiked {
+  A Int
+  B Int
+
+  @@unique([A, B], map: "_PostLiked_AB_unique")
+  @@index([B], map: "_PostLiked_B_index")
+  @@map("_PostLiked")
+}
+
+model UserFollows {
+  A Int
+  B Int
+
+  @@unique([A, B], map: "_UserFollows_AB_unique")
+  @@index([B], map: "_UserFollows_B_index")
+  @@map("_UserFollows")
+}
+
+//Create a prisma model for chat an messages
 
 model Chat {
   id           Int       @id @default(autoincrement())
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   name         String    @unique
-  messages     Message[]
   participants User[]    @relation("ChatParticipants")
+  messages     Message[]
+}
+
+model ChatParticipants {
+  A Int
+  B Int
+
+  @@unique([A, B], map: "_ChatParticipants_AB_unique")
+  @@index([B], map: "_ChatParticipants_B_index")
+  @@map("_ChatParticipants")
 }
 
 model Message {
@@ -81,8 +110,8 @@ model Message {
   content   String
   authorId  Int?
   chatId    Int?
-  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  chat      Chat?    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chat      Chat?    @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([authorId])
   @@index([chatId])
