@@ -1,6 +1,5 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { PrismaService } from './prisma.service';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { AuthModule } from './auth/auth.module';
@@ -9,6 +8,7 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { MailModule } from './mail/mail.module';
 import { ChatModule } from './chat/chat.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -21,10 +21,10 @@ import { ChatModule } from './chat/chat.module';
       ttl: 60,
       limit: 20,
     }),
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [
-    PrismaService,
     {
       provide: APP_GUARD,
       useClass: AtGuard,
