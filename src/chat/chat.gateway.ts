@@ -11,7 +11,7 @@ import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
 import { AddMessageDto } from './dto/add-message.dto';
 
-@WebSocketGateway(8020, {
+@WebSocketGateway(3001, {
   cors: {
     origin: '*',
   },
