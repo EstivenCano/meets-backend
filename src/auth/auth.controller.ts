@@ -87,17 +87,15 @@ export class AuthController {
   ) {
     const tokens = await this.authService.googleAuth(req);
 
-    console.log('Actual domain:', process.env.DOMAIN_NAME);
-
     res.cookie('access_token', tokens.access_token, {
-      secure: false,
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
       domain: process.env.DOMAIN_NAME,
     });
     res.cookie('refresh_token', tokens.refresh_token, {
-      secure: false,
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
       domain: process.env.DOMAIN_NAME,
     });
