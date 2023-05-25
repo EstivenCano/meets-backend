@@ -90,15 +90,17 @@ export class AuthController {
     console.log('Actual domain:', process.env.DOMAIN_NAME);
 
     res.cookie('access_token', tokens.access_token, {
-      maxAge: 1000 * 60 * 60,
-      secure: true,
-      sameSite: 'none',
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
       domain: process.env.DOMAIN_NAME,
     });
     res.cookie('refresh_token', tokens.refresh_token, {
-      maxAge: 1000 * 60 * 60,
-      secure: true,
-      sameSite: 'none',
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
       domain: process.env.DOMAIN_NAME,
     });
 
