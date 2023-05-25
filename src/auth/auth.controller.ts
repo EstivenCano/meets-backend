@@ -24,6 +24,7 @@ import {
 } from './dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -80,14 +81,22 @@ export class AuthController {
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
   @Redirect(process.env.FRONTEND_URL)
-  async googleAuthRedirect(@Req() req, @Res() res) {
+  async googleAuthRedirect(
+    @Req() req,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const tokens = await this.authService.googleAuth(req);
 
-    res.cookie('access_token', tokens.access_token);
-    res.cookie('refresh_token', tokens.refresh_token);
-
-    console.log(res.cookie);
-    console.log(tokens);
+    res.cookie('access_token', tokens.access_token, {
+      sameSite: 'none',
+      secure: true,
+      domain: process.env.FRONTEND_URL,
+    });
+    res.cookie('refresh_token', tokens.refresh_token, {
+      sameSite: 'none',
+      secure: true,
+      domain: process.env.FRONTEND_URL,
+    });
 
     return {
       message: 'User information from google',
