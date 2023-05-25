@@ -92,11 +92,13 @@ export class AuthController {
     res.cookie('access_token', tokens.access_token, {
       maxAge: 1000 * 60 * 60,
       secure: true,
+      sameSite: 'none',
       domain: process.env.DOMAIN_NAME,
     });
     res.cookie('refresh_token', tokens.refresh_token, {
       maxAge: 1000 * 60 * 60,
       secure: true,
+      sameSite: 'none',
       domain: process.env.DOMAIN_NAME,
     });
 
