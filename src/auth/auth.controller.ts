@@ -80,25 +80,15 @@ export class AuthController {
   @Public()
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
-  @Redirect(process.env.FRONTEND_URL)
-  async googleAuthRedirect(
-    @Req() req,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async googleAuthRedirect(@Req() req, @Res() res: Response) {
     const tokens = await this.authService.googleAuth(req);
 
-    res.cookie('access_token', tokens.access_token, {
-      httpOnly: true,
-      sameSite: 'none',
-      secure: true,
-      domain: process.env.DOMAIN_NAME,
-    });
-    res.cookie('refresh_token', tokens.refresh_token, {
-      httpOnly: true,
-      sameSite: 'none',
-      secure: true,
-      domain: process.env.DOMAIN_NAME,
-    });
+    const url = new URL(process.env.FRONTEND_URL);
+
+    url.searchParams.set('access', tokens.access_token);
+    url.searchParams.set('refresh', tokens.refresh_token);
+
+    res.redirect(url.toString());
 
     return {
       message: 'User information from google',
