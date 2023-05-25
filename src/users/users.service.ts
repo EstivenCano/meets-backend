@@ -359,6 +359,7 @@ export class UsersService {
       where: {
         name: {
           contains: search,
+          mode: 'insensitive',
         },
       },
       select: {
