@@ -91,11 +91,13 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'none',
       secure: true,
+      domain: process.env.DOMAIN_NAME,
     });
     res.cookie('refresh_token', tokens.refresh_token, {
       httpOnly: true,
       sameSite: 'none',
       secure: true,
+      domain: process.env.DOMAIN_NAME,
     });
 
     return {
