@@ -86,6 +86,9 @@ export class AuthController {
     res.cookie('access_token', tokens.access_token);
     res.cookie('refresh_token', tokens.refresh_token);
 
+    console.log(res.cookie);
+    console.log(tokens);
+
     return {
       message: 'User information from google',
       tokens,
