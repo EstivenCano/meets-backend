@@ -87,6 +87,8 @@ export class AuthController {
   ) {
     const tokens = await this.authService.googleAuth(req);
 
+    console.log('Actual domain:', process.env.DOMAIN_NAME);
+
     res.cookie('access_token', tokens.access_token, {
       maxAge: 1000 * 60 * 60,
       secure: true,
