@@ -88,16 +88,14 @@ export class AuthController {
     const tokens = await this.authService.googleAuth(req);
 
     res.cookie('access_token', tokens.access_token, {
-      secure: true,
+      httpOnly: true,
       sameSite: 'none',
-      expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-      domain: process.env.DOMAIN_NAME,
+      secure: true,
     });
     res.cookie('refresh_token', tokens.refresh_token, {
-      secure: true,
+      httpOnly: true,
       sameSite: 'none',
-      expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-      domain: process.env.DOMAIN_NAME,
+      secure: true,
     });
 
     return {
