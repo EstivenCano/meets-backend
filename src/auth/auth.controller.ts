@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Param,
   Post,
-  Redirect,
   Req,
   Request,
   Res,
@@ -50,6 +49,7 @@ export class AuthController {
     );
   }
 
+  @Throttle(2, 10)
   @Public()
   @HttpCode(HttpStatus.OK)
   @UseGuards(RtGuard)

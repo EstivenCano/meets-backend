@@ -39,7 +39,6 @@ export class ChatGateway
 
   @SubscribeMessage('event_leave')
   handleRoomLeave(client: Socket, room: string) {
-    console.log('Leaves');
     client.leave(`${room}`);
   }
 
