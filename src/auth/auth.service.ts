@@ -123,7 +123,7 @@ export class AuthService {
         'google',
         req.user.name,
         {
-          picture: req.user.picture,
+          picture: '',
           bio: '',
         },
       );
