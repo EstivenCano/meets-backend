@@ -13,7 +13,6 @@ export class AppController {
   @HttpCode(HttpStatus.OK)
   @Get('check-running')
   isRunning(@Res() res: Response) {
-    console.log('Healthy checked');
     res.status(200).send('Running!');
   }
 }
