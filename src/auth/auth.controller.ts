@@ -32,6 +32,14 @@ export class AuthController {
   @Throttle(10, 60)
   @Public()
   @HttpCode(HttpStatus.OK)
+  @Get('check-running')
+  isRunning(@Res() res: Response) {
+    res.status(200).send('Running!');
+  }
+
+  @Throttle(10, 60)
+  @Public()
+  @HttpCode(HttpStatus.OK)
   @Post('signin')
   signIn(@Body() signInDto: SigninDto) {
     return this.authService.signIn(signInDto.email, signInDto.password);
